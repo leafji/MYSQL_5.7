@@ -1,5 +1,4 @@
-/* Copyright (c) 2000, 2015, Oracle and/or its affiliates. All rights reserved.
-
+/* Copyright (c) 2000, 2015, Oracle and/or its affiliates. All rights reserved.  
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; version 2 of the License.
@@ -3389,6 +3388,10 @@ end_with_restore_list:
     }
   }
   break;
+  /*  add begin for SQLCOM_DISK_USAGE  */
+  case SQLCOM_SHOW_DISK_USAGE:
+      res = mysqld_show_disk_usage(thd);      
+      break;
   case SQLCOM_SHOW_PROCESSLIST:
     if (!thd->security_context()->priv_user().str[0] &&
         check_global_access(thd,PROCESS_ACL))

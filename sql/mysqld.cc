@@ -2420,6 +2420,8 @@ SHOW_VAR com_status_vars[]= {
   {"show_fields",          (char*) offsetof(STATUS_VAR, com_stat[(uint) SQLCOM_SHOW_FIELDS]),                SHOW_LONG_STATUS, SHOW_SCOPE_ALL},
   {"show_function_code",   (char*) offsetof(STATUS_VAR, com_stat[(uint) SQLCOM_SHOW_FUNC_CODE]),             SHOW_LONG_STATUS, SHOW_SCOPE_ALL},
   {"show_function_status", (char*) offsetof(STATUS_VAR, com_stat[(uint) SQLCOM_SHOW_STATUS_FUNC]),           SHOW_LONG_STATUS, SHOW_SCOPE_ALL},
+  {"show_disk_usage",      (char*) offsetof(STATUS_VAR, com_stat[(uint) SQLCOM_SHOW_DISK_USAGE]),
+SHOW_LONG_STATUS, SHOW_SCOPE_ALL},
   {"show_grants",          (char*) offsetof(STATUS_VAR, com_stat[(uint) SQLCOM_SHOW_GRANTS]),                SHOW_LONG_STATUS, SHOW_SCOPE_ALL},
   {"show_keys",            (char*) offsetof(STATUS_VAR, com_stat[(uint) SQLCOM_SHOW_KEYS]),                  SHOW_LONG_STATUS, SHOW_SCOPE_ALL},
   {"show_master_status",   (char*) offsetof(STATUS_VAR, com_stat[(uint) SQLCOM_SHOW_MASTER_STAT]),           SHOW_LONG_STATUS, SHOW_SCOPE_ALL},

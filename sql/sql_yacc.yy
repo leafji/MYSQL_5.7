@@ -612,6 +612,7 @@ bool my_yyoverflow(short **a, YYSTYPE **b, YYLTYPE **c, ulong *yystacksize);
 %token  DISABLE_SYM
 %token  DISCARD
 %token  DISK_SYM
+%token  DISK_USAGE_SYM                /* SHOW DISK USAGE */
 %token  DISTINCT                      /* SQL-2003-R */
 %token  DIV_SYM
 %token  DOUBLE_SYM                    /* SQL-2003-R */
@@ -11708,7 +11709,12 @@ opt_profile_args:
 /* Show things */
 
 show:
-          SHOW
+           SHOW DISK_USAGE_SYM
+           {
+            LEX *lex = Lex;
+            lex->sql_command = SQLCOM_SHOW_DISK_USAGE;
+           }   // add for sql show disk usage
+         | SHOW
           {
             LEX *lex=Lex;
             memset(&lex->create_info, 0, sizeof(lex->create_info));

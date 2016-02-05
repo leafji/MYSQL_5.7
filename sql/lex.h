@@ -191,6 +191,7 @@ static const SYMBOL symbols[] = {
   { SYM("DISABLE",                  DISABLE_SYM)},
   { SYM("DISCARD",                  DISCARD)},
   { SYM("DISK",                     DISK_SYM)},
+  { SYM("DISK_USAGE",               DISK_USAGE_SYM)},// add for show disk usage
   { SYM("DISTINCT",                 DISTINCT)},
   { SYM("DISTINCTROW",              DISTINCT)}, /* Access likes this */
   { SYM("DIV",                      DIV_SYM)},

@@ -180,6 +180,7 @@ int mysqld_show_status(THD *thd);
 int mysqld_show_variables(THD *thd,const char *wild);
 bool mysqld_show_storage_engines(THD *thd);
 bool mysqld_show_privileges(THD *thd);
+bool mysqld_show_disk_usage(THD *thd);
 char *make_backup_log_name(char *buff, const char *name, const char* log_ext);
 void calc_sum_of_all_status(STATUS_VAR *to);
 void append_definer(THD *thd, String *buffer, const LEX_CSTRING &definer_user,

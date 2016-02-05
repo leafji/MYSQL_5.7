@@ -73,7 +73,7 @@ using std::max;
 using std::min;
 
 #define STR_OR_NIL(S) ((S) ? (S) : "<nil>")
-
+#define MAX_PATH 260
 enum enum_i_s_events_fields
 {
   ISE_EVENT_CATALOG= 0,
@@ -310,7 +310,74 @@ static struct show_privileges_st sys_privileges[]=
   {"Usage","Server Admin","No privileges - allow connect only"},
   {NullS, NullS, NullS}
 };
-
+/*  add for sql show disk usage */
+bool mysqld_show_disk_usage(THD *thd)
+{
+    List<Item> field_list;
+    List<LEX_STRING> *dbs_p;
+    List<LEX_STRING>  dbs;
+    Protocol *protocol= thd->get_protocol();
+    MY_DIR *dirp;
+    LEX_STRING *db_name;
+    FILEINFO *file;
+    longlong fsize;
+    longlong lsize;
+    char* path=(char *)malloc(MAX_PATH);
+    DBUG_ENTER("mysql_show_disk_usage");
+  
+    find_files(thd,&dbs,0,mysql_real_data_home,NULL,1,0); // get the database to dbs
+    dbs_p = &dbs;
+    List_iterator_fast<LEX_STRING> it_dbs(*dbs_p);
+    field_list.push_back(new Item_empty_string("DataBase",30));
+    field_list.push_back(new Item_int(NAME_STRING("Size (kb)"), (longlong)1,21));
+  
+    if (thd->send_result_metadata(&field_list, Protocol::SEND_NUM_ROWS | Protocol::SEND_EOF))
+        DBUG_RETURN(TRUE); 
+    dirp =  my_dir(mysql_real_data_home,MYF(MY_WANT_STAT));
+    fsize = 0;
+    lsize = 0;
+    /* return the innodb data size */
+    for( int i = 0; i < (int)dirp->number_off_files; i++)
+    {
+        file = dirp->dir_entry + i;
+        if(strncasecmp(file->name, "ibdata",6) == 0)
+            fsize = fsize + file->mystat->st_size;
+        else if(strncasecmp(file->name,"ib",2) == 0)
+            lsize = lsize + file->mystat->st_size;
+    } 
+  
+    protocol->start_row();
+    protocol->store("InnoDB Tablespace",system_charset_info);
+    protocol->store((longlong)fsize);
+    if (protocol->end_row())
+        DBUG_RETURN(TRUE);
+    protocol->start_row();
+    protocol->store("InnoDB log",system_charset_info);
+    protocol->store((longlong)lsize);
+    if (protocol->end_row())
+        DBUG_RETURN(TRUE);
+   /* return the database size */ 
+   while((db_name = it_dbs++))
+   {
+       fsize = 0;
+       strcpy(path,mysql_real_data_home);
+       strcat(path,db_name->str);
+       dirp = my_dir(path,MYF(MY_WANT_STAT));
+       for( int i = 0; i < (int)dirp->number_off_files;i++)
+       {
+          file = dirp->dir_entry + i ;
+          fsize = fsize + file->mystat->st_size;
+       }
+           protocol->start_row();
+           protocol->store(db_name->str,system_charset_info);
+       protocol->store((longlong)fsize);
+       if (protocol->end_row())
+         DBUG_RETURN(TRUE);
+   }
+   my_eof(thd);
+   //my_free(path);
+   DBUG_RETURN(FALSE);
+}
 bool mysqld_show_privileges(THD *thd)
 {
   List<Item> field_list;
@@ -581,8 +648,6 @@ is_in_ignore_db_dirs_list(const char *directory)
     NULL != my_hash_search(&ignore_db_dirs_hash, (const uchar *) directory, 
                            strlen(directory));
 }
-
-
 /*
   find_files() - find files in a given directory.
 
@@ -601,7 +666,7 @@ is_in_ignore_db_dirs_list(const char *directory)
     FIND_FILES_OOM      out of memory error
     FIND_FILES_DIR      no such directory, or directory can't be read
 */
-
+        
 
 find_files_result
 find_files(THD *thd, List<LEX_STRING> *files, const char *db,
